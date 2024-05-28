@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 // void ReadFileToArray()
 
@@ -63,28 +64,15 @@ int main(int argc, char** argv) {
       // Put here whatever you want to do with your value.
       if (count < n_values) {
         
-        printf("%d    ", count);
+        printf("%d %s  ", count, str);
 
-        char str1[20];
-        char str2[20];
-        int string_number = 1;
-        int string_index = 0;
-        for (int i = 0; i < 40; i++){
-          char c = str[i];
-          printf("%c", str[i]);
-          if (c == ','){
-            //printf("FOUND COMMA");
-            string_number = 2;
-          } else if (string_number == 1){
-            str1[string_index] = c;
-          } else {
-            //printf("GA");
-            str2[string_index] = c;
-          }
-          string_index++;
+        const char s[2] = ",";
+        char* str1;
+        char* str2;
 
-          
-        }
+        str1 = strtok(str, s);
+        str2 = strtok(NULL, s);
+
         printf(" Str1: %s  Str2: %s\n", str1, str2);
         
         count++;

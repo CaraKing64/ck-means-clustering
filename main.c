@@ -45,7 +45,11 @@ int main(int argc, char** argv) {
   printf("File '%s' with %d data values in %d dimensions\n", data_filename,
          n_values, n_dimensions);
 
-  double* data_array = malloc(sizeof(double));
+  double** data_array = malloc(sizeof(double*) * n_values);
+  for (int r = 0; r < n_values; r++){
+    data_array[r] = malloc(sizeof(double) * n_dimensions);
+  }
+
 
 
 
@@ -73,13 +77,27 @@ int main(int argc, char** argv) {
         str1 = strtok(str, s);
         str2 = strtok(NULL, s);
 
+
+        char * ptr;
         printf(" Str1: %s  Str2: %s\n", str1, str2);
+        data_array[count][0] = strtod(str1, &ptr);
+        data_array[count][1] = strtod(str2, &ptr);
+
         
         count++;
       }
     }
 
   } while (result != EOF);
+
+
+  for (int r = 0; r < n_values; r++){
+    for (int c = 0; c < n_dimensions; c++){
+      printf("%d ", (int)data_array[r][c]);
+    }
+    printf("\n");
+  }
+
 
   return 0;
 }

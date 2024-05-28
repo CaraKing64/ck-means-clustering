@@ -15,10 +15,14 @@
 int main(int argc, char** argv){
 
   char* data_filename = argv[1];
-  if (argc = 1){
+  printf("You entered %d arguments\n", argc);
+
+  if (argc == 1){
+    printf("GRAHHHH");
     printf("Enter a filename\n");
     return 1;
   }
+
   if (argc > 2){
     printf("Your extra arguments are '");
     for (int i = 2; i < argc; i++){
@@ -26,12 +30,11 @@ int main(int argc, char** argv){
     }
     printf("'\n");
   }
+  
+  printf("You have entered the file as '%s'\n", data_filename);
+
 
   
-  printf("You have entered the file to do k-means clustering for as %s\n", data_filename);
-
-
-
 
 
 

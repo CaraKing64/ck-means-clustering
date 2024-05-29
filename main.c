@@ -94,25 +94,26 @@ double RandDouble(double lower, double upper) {
 }
 
 int GenerateClusters(int n_clusters, int n_coordinates, double** min_vals,
-                          double** max_vals, double*** end_array) {
+                     double** max_vals, double*** end_array) {
   double** c_array = malloc(sizeof(double*) * n_clusters);
 
   double* mins = *min_vals;
   double* maxs = *max_vals;
 
+  // initialise c_array
   for (int r = 0; r < n_clusters; r++) {
     c_array[r] = malloc(sizeof(double) * n_coordinates);
     for (int c = 0; c < n_coordinates; c++) {
       c_array[r][c] = 0;
     }
   }
-
+  // set values in c_array as randomly generates doubles
   for (int cluster = 0; cluster < n_clusters; cluster++) {
     for (int coord = 0; coord < n_coordinates; coord++) {
       c_array[cluster][coord] = RandDouble(mins[coord], maxs[coord]);
     }
   }
-
+  // print c_array
   for (int cluster = 0; cluster < n_clusters; cluster++) {
     for (int coord = 0; coord < n_coordinates; coord++) {
       printf("%lf ", c_array[cluster][coord]);
@@ -132,6 +133,7 @@ int main(int argc, char** argv) {
   int attempts = -1;
   int void_num;
 
+  // set random seed
   srand(time(NULL));
 
   if (argc < 2) {
@@ -154,6 +156,7 @@ int main(int argc, char** argv) {
     }
   }
 
+  // read csv file containing data to array
   double** data_array;
   int read_value = ReadFileToDoubleArray(data_filename, &data_array, &n_values,
                                          &n_dimensions);
@@ -164,26 +167,23 @@ int main(int argc, char** argv) {
 
   printf("n_values = %d  n_dimensions = %d\n", n_values, n_dimensions);
 
-  // each value in the dataset
+  // print data
   for (int r = 0; r < n_values; r++) {
-    // each dimension in the dataset
     for (int c = 0; c < n_dimensions; c++) {
       printf("%.0lf ", data_array[r][c]);
     }
     printf("\n");
   }
 
-  // find min and max for each variable
+  // initialise mins and maxs
   double* mins = malloc(sizeof(double) * n_dimensions);
   double* maxs = malloc(sizeof(double) * n_dimensions);
   for (int i = 0; i < n_dimensions; i++) {
     mins[i] = data_array[0][i];
     maxs[i] = data_array[0][i];
   }
-
-  // each value in the dataset
+  // find min and max for each variable
   for (int r = 0; r < n_values; r++) {
-    // each dimension in the dataset
     for (int c = 0; c < n_dimensions; c++) {
       double val = data_array[r][c];
       if (val < mins[c]) {
@@ -195,7 +195,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  // show min and max values for each variable
+  // print mins and maxs
   printf("\nMin values: ");
   for (int i = 0; i < n_dimensions; i++) {
     printf("%.1lf ", mins[i]);
@@ -206,50 +206,55 @@ int main(int argc, char** argv) {
   }
   printf("\n");
 
+  // K-MEANS CLUSTERING LOOP
+
+  // number of clusters
   for (int k = start_k; k <= max_k; k++) {
-    // initialise variables
-    int finished = 0;
-    // generate clusters
-    printf("\nGENERATING %d CLUSTERS\n", k);
-    double** cluster_array;
-    int gen_cluster_return = GenerateClusters(k, n_dimensions, &mins, &maxs, &cluster_array);
 
-    // while not finished
-    while (finished == 0) {
-      // assign points to clusters
-      // move clusters to middle of new points
+    // number of attempts for this value of k
+    for (int attempt = 0; attempt < attempts; attempt++) {
+      // initialise variables
+      int finished = 0;
+      // generate clusters
+      printf("\nATTEMPT %d GENERATING %d CLUSTERS\n", attempt+1, k);
+      double** cluster_array;
+      int gen_cluster_return =
+          GenerateClusters(k, n_dimensions, &mins, &maxs, &cluster_array);
 
-      // copy cluster_array to old_cluster_array
-      double** old_cluster_array = malloc(sizeof(double*) * k);
-      if (old_cluster_array == NULL) {
-        printf("Memory allocation error");
-        return 1;
-      }
-      for (int r = 0; r < k; r++) {
-        old_cluster_array[r] = malloc(sizeof(double) * n_dimensions);
-        if (old_cluster_array[r] == NULL) {
+      // while not finished
+      while (finished == 0) {
+        // assign points to clusters
+        // move clusters to middle of new points
+
+        // copy cluster_array to old_cluster_array
+        double** old_cluster_array = malloc(sizeof(double*) * k);
+        if (old_cluster_array == NULL) {
           printf("Memory allocation error");
           return 1;
         }
-      }
-      for (int r = 0; r < k; r++) {
-        for (int c = 0; c < n_dimensions; c++) {
-          old_cluster_array[r][c] = cluster_array[r][c];
+        for (int r = 0; r < k; r++) {
+          old_cluster_array[r] = malloc(sizeof(double) * n_dimensions);
+          if (old_cluster_array[r] == NULL) {
+            printf("Memory allocation error");
+            return 1;
+          }
         }
-      }
-      // print old_cluster_array
-      printf("Old Cluster Array\n");
-      for (int r = 0; r < k; r++) {
-        for (int c = 0; c < n_dimensions; c++) {
-          printf("%lf", old_cluster_array[r][c]);
+        for (int r = 0; r < k; r++) {
+          for (int c = 0; c < n_dimensions; c++) {
+            old_cluster_array[r][c] = cluster_array[r][c];
+          }
         }
-        printf("\n");
+        // print old_cluster_array
+        printf("Old Cluster Array\n");
+        for (int r = 0; r < k; r++) {
+          for (int c = 0; c < n_dimensions; c++) {
+            printf("%lf", old_cluster_array[r][c]);
+          }
+          printf("\n");
+        }
+
+        finished = 1;
       }
-
-
-
-
-      finished = 1;
     }
 
     // calculate distortion

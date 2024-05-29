@@ -95,7 +95,7 @@ double RandDouble(double lower, double upper) {
 
 double** GenerateClusters(int n_clusters, int n_coordinates, double** min_vals,
                           double** max_vals) {
-  double** c_array = malloc(sizeof(double*));
+  double** c_array = malloc(sizeof(double*) * n_clusters);
 
   double* mins = *min_vals;
   double* maxs = *max_vals;
@@ -120,8 +120,6 @@ double** GenerateClusters(int n_clusters, int n_coordinates, double** min_vals,
     printf("\n");
   }
 }
-// void def AssignToClusters(double* data, double* centroids, int n_centroids)
-// void def MoveClusters()
 
 int main(int argc, char** argv) {
   char* data_filename;
@@ -138,26 +136,23 @@ int main(int argc, char** argv) {
     printf("You are missing arguments\n");
     return 1;
   }
-
   data_filename = argv[1];
-
-  double** data_array;
-
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-sk") == 0) {
-      printf("ENTERED -sk %s\n", argv[i+1]);
+      printf("ENTERED -sk %s\n", argv[i + 1]);
       start_k = atoi(argv[i + 1]);
     }
     if (strcmp(argv[i], "-mk") == 0) {
-      printf("ENTERED -mk %s\n", argv[i+1]);
+      printf("ENTERED -mk %s\n", argv[i + 1]);
       max_k = atoi(argv[i + 1]);
     }
     if (strcmp(argv[i], "-a") == 0) {
-      printf("ENTERED -a %s\n", argv[i+1]);
+      printf("ENTERED -a %s\n", argv[i + 1]);
       attempts = atoi(argv[i + 1]);
-    }    
+    }
   }
 
+  double** data_array;
   int read_value = ReadFileToDoubleArray(data_filename, &data_array, &n_values,
                                          &n_dimensions);
   if (read_value == 1) {
@@ -229,20 +224,19 @@ int main(int argc, char** argv) {
 
   int finished = 0;
   for (int k = start_k; k <= max_k; k++) {
-      // generate clusters
-      printf("GENERATING %d CLUSTERS\n", k);
-      double** cluster_array = GenerateClusters(k, n_dimensions, &mins, &maxs);
+    // generate clusters
+    printf("GENERATING %d CLUSTERS\n", k);
+    double** cluster_array = GenerateClusters(k, n_dimensions, &mins, &maxs);
 
-      // while not finished
-      while (finished == 0) {
-        
+    // while not finished
+    while (finished == 0) {
       // assign points to clusters
-      // move clusters to middle of new points  
-      
-        finished = 1;
-      }
+      // move clusters to middle of new points
 
-      // calculate distortion
+      finished = 1;
+    }
+
+    // calculate distortion
   }
 
   return 0;
@@ -251,3 +245,6 @@ int main(int argc, char** argv) {
 // array k, each element points to array of attempts
 // each element in attempts points to a 2d array of original data set with an
 // additional column of assigned cluster
+
+// void def AssignToClusters(double* data, double* centroids, int n_centroids)
+// void def MoveClusters()

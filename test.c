@@ -1,30 +1,26 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
 
-double Distance(double* p1, double* p2, int n_vars) {
-  double sum;
-  for (int i = 0; i < n_vars; i++) {
-    double dist = p1[i] - p2[i];
-    sum += dist * dist;
-  }
-  return sqrt(sum);
+double rand_double(double lower, double upper) {
+  double s = ((double)rand() / (double)RAND_MAX);
+  double num = lower + s*(upper-lower);
+  return num;
 }
 
 int main(void) {
-  
-  
-  double p1[2];
-  p1[0] = 0;
-  p1[1] = 0;
-  double p2[2];
-  p2[0] = 3;
-  p2[1] = 4;
+  srand(time(NULL));
 
-  printf("%lf \n", EuclidianDistance(p1, p2, 2));
-
+  for (int i = 0; i < 10; i++) {
+    double n = rand_double(5, 10);
+    printf("%lf\n", n);
+  }
 
   return 0;
 }
+
+// n between 0 u-l
+// add l
+// n between l

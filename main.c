@@ -87,7 +87,39 @@ double Distance(double* p1, double* p2, int n_vars) {
   return sqrt(sum);
 }
 
-// double** GenerateClusters
+double RandDouble(double lower, double upper) {
+  double s = ((double)rand() / (double)RAND_MAX);
+  double num = lower + s * (upper - lower);
+  return num;
+}
+
+double** GenerateClusters(int n_clusters, int n_coordinates, double** min_vals,
+                          double** max_vals) {
+  double** c_array = malloc(sizeof(double*));
+
+  double* mins = *min_vals;
+  double* maxs = *max_vals;
+
+  for (int r = 0; r < n_clusters; r++) {
+    c_array[r] = malloc(sizeof(double) * n_coordinates);
+    for (int c = 0; c < n_coordinates; c++) {
+      c_array[r][c] = 0;
+    }
+  }
+
+  for (int cluster = 0; cluster < n_clusters; cluster++) {
+    for (int coord = 0; coord < n_coordinates; coord++) {
+      c_array[cluster][coord] = RandDouble(mins[coord], maxs[coord]);
+    }
+  }
+
+  for (int cluster = 0; cluster < n_clusters; cluster++) {
+    for (int coord = 0; coord < n_coordinates; coord++) {
+      printf("%lf ", c_array[cluster][coord]);
+    }
+    printf("\n");
+  }
+}
 // void def AssignToClusters(double* data, double* centroids, int n_centroids)
 // void def MoveClusters()
 
@@ -95,10 +127,11 @@ int main(int argc, char** argv) {
   char* data_filename;
   int n_values = -1;
   int n_dimensions = -1;
-  int max_k;
-  int attempts;
+  int max_k = -1;
+  int attempts = -1;
+  int void_num;
 
-  // printf("You entered %d arguments\n", argc);
+  srand(time(NULL));
 
   if (argc < 2) {
     printf("You are missing arguments\n");
@@ -108,6 +141,17 @@ int main(int argc, char** argv) {
   data_filename = argv[1];
 
   double** data_array;
+
+  for (int i = 0; i < argc; i++) {
+    if (strcmp(argv[i], "-k") == 0) {
+      // printf("ENTERED -k %s\n", argv[i+1]);
+      max_k = atoi(argv[i + 1]);
+    }
+    if (strcmp(argv[i], "-a") == 0) {
+      // printf("ENTERED -a %s\n", argv[i+1]);
+      attempts = atoi(argv[i + 1]);
+    }
+  }
 
   if (argc > 2) {
     printf("Your extra unused arguments are: ");
@@ -150,15 +194,49 @@ int main(int argc, char** argv) {
     for (int c = 0; c < n_dimensions; c++) {
       printf("%.1lf ", data_array[r][c]);
     }
-    printf("%lf   ", Distance(data_array[r], origin, n_dimensions));
+    printf("  dist %lf", Distance(data_array[r], origin, n_dimensions));
     printf("\n");
   }
 
+  double* mins = malloc(sizeof(double) * n_dimensions);
+  double* maxs = malloc(sizeof(double) * n_dimensions);
 
+  for (int i = 0; i < n_dimensions; i++) {
+    mins[i] = data_array[0][i];
+    maxs[i] = data_array[0][i];
+  }
+
+  // each value in the dataset
+  for (int r = 0; r < n_values; r++) {
+    // each dimension in the dataset
+    for (int c = 0; c < n_dimensions; c++) {
+      double val = data_array[r][c];
+      if (val < mins[c]) {
+        mins[c] = val;
+      }
+      if (val > maxs[c]) {
+        maxs[c] = val;
+      }
+    }
+  }
+
+  // show min and max values for each variable
+  printf("\n\nMin values: ");
+  for (int i = 0; i < n_dimensions; i++) {
+    printf("%.1lf ", mins[i]);
+  }
+  printf("\nMax values: ");
+  for (int i = 0; i < n_dimensions; i++) {
+    printf("%.1lf ", maxs[i]);
+  }
+  printf("\n");
 
   for (int k = 1; k <= max_k; k++) {
-    for (int attempt = 1; attempt < attempts; attempt++) {
+    for (int attempt = 0; attempt < attempts; attempt++) {
       // generate clusters
+      printf("GENERATING CLUSTERS\n");
+      double** cluster_array = GenerateClusters(2, n_dimensions, &mins, &maxs);
+
       // while not finished
       // assign points to clusters
       // move clusters to middle of new points

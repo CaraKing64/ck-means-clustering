@@ -14,39 +14,23 @@
 
 int main(int argc, char** argv) {
   char* data_filename;
-  int n_values;
-  int n_dimensions;
+  int n_values = -1;
+  int n_dimensions = -1;
   int max_k;
   int attempts;
 
   // printf("You entered %d arguments\n", argc);
 
-  if (argc < 4) {
+  if (argc < 2) {
     printf("You are missing arguments\n");
     return 1;
   }
 
-  if (argc >= 4) {
-    data_filename = argv[1];
-    n_values = atoi(argv[2]);
-    n_dimensions = atoi(argv[3]);
-  }
+  data_filename = argv[1];
 
-  if (argc >= 5) {
-    max_k = atoi(argv[4]);
-  } else {
-    max_k = n_values;
-  }
-  if (argc >= 6) {
-    attempts = atoi(argv[5]);
-  } else {
-    attempts = 10;
-  }
-
-  if (argc > 6) {
-    data_filename = argv[1];
+  if (argc > 2) {
     printf("Your extra unused arguments are: ");
-    for (int i = 3; i < argc; i++) {
+    for (int i = 2; i < argc; i++) {
       printf("'%s'", argv[i]);
       if (i != argc - 1) {
         printf(", ");
@@ -55,62 +39,79 @@ int main(int argc, char** argv) {
     printf("\n");
   }
 
-  printf(
-      "Performing k-means clustering from 0 to %d attempting %d times for each "
-      "value of k.\nData is found at '%s' "
-      "containing %d values in %d dimensions.\n",
-      max_k, attempts, data_filename, n_values, n_dimensions);
-
-  double** data_array = malloc(sizeof(double*) * n_values);
-  for (int r = 0; r < n_values; r++) {
-    data_array[r] = malloc(sizeof(double) * n_dimensions);
-  }
-
   // WENDYN via https://stackoverflow.com/questions/12911299/read-csv-file-in-c
   char str[128];
   int result;
   FILE* f = fopen(data_filename, "r");
   int count = 0;
+  int comma_count = 0;
+
   do {
     result = fscanf(f, "%127[^;\n]", str);
-
     if (result == 0) {
       result = fscanf(f, "%*c");
-    } else {
-      // Put here whatever you want to do with your value.
-      if (count < n_values) {
-        const char s[2] = ",";
-        char* str1;
-        char* str2;
-        char copy_of_string[40];
-        strcpy(copy_of_string, str);
-
-        str1 = strtok(str, s);
-        str2 = strtok(NULL, s);
-
-        char* ptr;
-        // printf("%d %s   Str1: %s  Str2: %s\n", count, copy_of_string, str1,
-        //       str2);
-        data_array[count][0] = strtod(str1, &ptr);
-        data_array[count][1] = strtod(str2, &ptr);
-
-        count++;
+    } else if (result == 1) {
+      if (n_dimensions == -1) {
+        comma_count = 0;
+        for (int i = 0; i < strlen(str); i++) {
+          if (str[i] == ',') {
+            comma_count++;
+          }
+        }
       }
-    }
 
+      count++;
+    }
+  } while (result != EOF);
+
+  fclose(f);
+
+  n_values = count;
+  n_dimensions = comma_count + 1;
+  printf("n_values = %d  n_dimensions = %d\n", n_values, n_dimensions);
+
+  double** data_array = malloc(sizeof(double*) * n_values);
+  if (data_array == NULL) {
+    printf("Memory allocation error.\n");
+    return 1;
+  }
+  for (int r = 0; r < n_values; r++) {
+    data_array[r] = malloc(sizeof(double) * n_dimensions);
+  }
+
+  FILE* f2 = fopen(data_filename, "r");
+  result = 0;
+  int row = 0;
+  do {
+    result = fscanf(f2, "%127[^;\n]", str);
+    if (result == 0) {
+      result = fscanf(f2, "%*c");
+    } else if (result == 1) {
+      //printf("%d %s\n", result, str);
+
+      char* token;
+      int i = 0;
+      token = strtok(str, ",");
+      while (token != NULL) {
+        data_array[row][i] = atoi(token);
+        token = strtok(NULL, ",");
+        i++;
+      }
+      row++;
+
+    }
   } while (result != EOF);
 
   // print all values in the dataset
   for (int r = 0; r < n_values; r++) {
     for (int c = 0; c < n_dimensions; c++) {
-      printf("%d ", (int)data_array[r][c]);
+      printf("%.0lf ", data_array[r][c]);
     }
     printf("\n");
   }
 
   for (int k = 1; k <= max_k; k++) {
     for (int attempt = 1; attempt < attempts; attempt++) {
-
     }
   }
 

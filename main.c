@@ -1,10 +1,10 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <time.h>
 
-int ReadFileToDoubleArray(char* fname, double** end_array, int* p_rows,
+int ReadFileToDoubleArray(char* fname, double*** output_array, int* p_rows,
                           int* p_cols) {
   int rows = *p_rows;
   int cols = *p_cols;
@@ -15,7 +15,7 @@ int ReadFileToDoubleArray(char* fname, double** end_array, int* p_rows,
   FILE* f = fopen(fname, "r");
   int count = 0;
   int comma_count = 0;
-
+  // read csv file and count number of rows and columns
   do {
     result = fscanf(f, "%127[^;\n]", str);
     if (result == 0) {
@@ -38,9 +38,8 @@ int ReadFileToDoubleArray(char* fname, double** end_array, int* p_rows,
 
   rows = count;
   cols = comma_count + 1;
-  printf("n_values = %d  n_dimensions = %d\n", rows, cols);
 
-  end_array = malloc(sizeof(double*) * rows);
+  double** end_array = malloc(sizeof(double*) * rows);
   if (end_array == NULL) {
     printf("Memory allocation error.\n");
     return 1;
@@ -59,6 +58,7 @@ int ReadFileToDoubleArray(char* fname, double** end_array, int* p_rows,
     } else if (result == 1) {
       // printf("%d %s\n", result, str);
 
+      // split the string where there are commas
       char* token;
       int i = 0;
       token = strtok(str, ",");
@@ -70,17 +70,21 @@ int ReadFileToDoubleArray(char* fname, double** end_array, int* p_rows,
       row++;
     }
   } while (result != EOF);
+
+  *p_rows = rows;
+  *p_cols = cols;
+  *output_array = end_array;
+
   return 0;
 }
 
-double Distance(double* p1, double* p2, int n_vars){
+double Distance(double* p1, double* p2, int n_vars) {
   double sum;
-  for (int i = 0; i < n_vars; i++){
+  for (int i = 0; i < n_vars; i++) {
     double dist = p1[i] - p2[i];
-    sum += dist*dist;
+    sum += dist * dist;
   }
-  
-
+  return sqrt(sum);
 }
 
 // double** GenerateClusters
@@ -116,26 +120,55 @@ int main(int argc, char** argv) {
     printf("\n");
   }
 
-  int read_value = ReadFileToDoubleArray(data_filename, data_array, &n_values, &n_dimensions);
-  if (read_value == 1){
+  int read_value = ReadFileToDoubleArray(data_filename, &data_array, &n_values,
+                                         &n_dimensions);
+  if (read_value == 1) {
     printf("Read file error.\n");
     return 1;
   }
 
-  double* origin = {0, 0, 0};
+  printf("n_values = %d  n_dimensions = %d\n", n_values, n_dimensions);
 
-  // print all values in the dataset
+  // each value in the dataset
   for (int r = 0; r < n_values; r++) {
+    // each dimension in the dataset
     for (int c = 0; c < n_dimensions; c++) {
-      printf("%.0lf %.0lf", data_array[r][c], Distance(data_array[1], origin, n_dimensions));
+      printf("%.0lf ", data_array[r][c]);
     }
     printf("\n");
   }
+  printf("\n\n");
+
+  double origin[3];
+  origin[0] = 0;
+  origin[1] = 0;
+  origin[2] = 0;
+
+  // each value in the dataset
+  for (int r = 0; r < n_values; r++) {
+    // each dimension in the dataset
+    for (int c = 0; c < n_dimensions; c++) {
+      printf("%.1lf ", data_array[r][c]);
+    }
+    printf("%lf   ", Distance(data_array[r], origin, n_dimensions));
+    printf("\n");
+  }
+
+
 
   for (int k = 1; k <= max_k; k++) {
     for (int attempt = 1; attempt < attempts; attempt++) {
+      // generate clusters
+      // while not finished
+      // assign points to clusters
+      // move clusters to middle of new points
+      // calculate distortion
     }
   }
 
   return 0;
 }
+
+// array k, each element points to array of attempts
+// each element in attempts points to a 2d array of original data set with an
+// additional column of assigned cluster

@@ -2,25 +2,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
+
+double Distance(double* p1, double* p2, int n_vars) {
+  double sum;
+  for (int i = 0; i < n_vars; i++) {
+    double dist = p1[i] - p2[i];
+    sum += dist * dist;
+  }
+  return sqrt(sum);
+}
 
 int main(void) {
-  int n_dimensions = 3;
-  char str[] = "12,52,36";
-  double* row = malloc(sizeof(double) * n_dimensions);
-  char* token;
+  
+  
+  double p1[2];
+  p1[0] = 0;
+  p1[1] = 0;
+  double p2[2];
+  p2[0] = 3;
+  p2[1] = 4;
 
-
-  int i = 0;
-  token = strtok(str, ",");
-  while (token != NULL){
-    row[i] = atoi(token);
-    token = strtok(NULL, ",");
-    i++;
-  }
-
-  for (int i = 0; i < n_dimensions; i++){
-    printf("%lf\n", row[i]);
-  }
+  printf("%lf \n", EuclidianDistance(p1, p2, 2));
 
 
   return 0;

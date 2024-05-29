@@ -127,6 +127,7 @@ int main(int argc, char** argv) {
   char* data_filename;
   int n_values = -1;
   int n_dimensions = -1;
+  int start_k = -1;
   int max_k = -1;
   int attempts = -1;
   int void_num;
@@ -143,25 +144,18 @@ int main(int argc, char** argv) {
   double** data_array;
 
   for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[i], "-k") == 0) {
-      // printf("ENTERED -k %s\n", argv[i+1]);
+    if (strcmp(argv[i], "-sk") == 0) {
+      printf("ENTERED -sk %s\n", argv[i+1]);
+      start_k = atoi(argv[i + 1]);
+    }
+    if (strcmp(argv[i], "-mk") == 0) {
+      printf("ENTERED -mk %s\n", argv[i+1]);
       max_k = atoi(argv[i + 1]);
     }
     if (strcmp(argv[i], "-a") == 0) {
-      // printf("ENTERED -a %s\n", argv[i+1]);
+      printf("ENTERED -a %s\n", argv[i+1]);
       attempts = atoi(argv[i + 1]);
-    }
-  }
-
-  if (argc > 2) {
-    printf("Your extra unused arguments are: ");
-    for (int i = 2; i < argc; i++) {
-      printf("'%s'", argv[i]);
-      if (i != argc - 1) {
-        printf(", ");
-      }
-    }
-    printf("\n");
+    }    
   }
 
   int read_value = ReadFileToDoubleArray(data_filename, &data_array, &n_values,
@@ -231,17 +225,24 @@ int main(int argc, char** argv) {
   }
   printf("\n");
 
-  for (int k = 1; k <= max_k; k++) {
-    for (int attempt = 0; attempt < attempts; attempt++) {
+  GenerateClusters(5, n_dimensions, &mins, &maxs);
+
+  int finished = 0;
+  for (int k = start_k; k <= max_k; k++) {
       // generate clusters
-      printf("GENERATING CLUSTERS\n");
-      double** cluster_array = GenerateClusters(2, n_dimensions, &mins, &maxs);
+      printf("GENERATING %d CLUSTERS\n", k);
+      double** cluster_array = GenerateClusters(k, n_dimensions, &mins, &maxs);
 
       // while not finished
+      while (finished == 0) {
+        
       // assign points to clusters
-      // move clusters to middle of new points
+      // move clusters to middle of new points  
+      
+        finished = 1;
+      }
+
       // calculate distortion
-    }
   }
 
   return 0;

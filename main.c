@@ -128,9 +128,9 @@ int main(int argc, char** argv) {
   char* data_filename;
   int n_values = -1;
   int n_dimensions = -1;
-  int start_k = -1;
-  int max_k = -1;
-  int attempts = -1;
+  int start_k = 0;;
+  int max_k = n_values;
+  int attempts = 10;
   int void_num;
 
   // set random seed
@@ -150,6 +150,12 @@ int main(int argc, char** argv) {
       printf("ENTERED -mk %s\n", argv[i + 1]);
       max_k = atoi(argv[i + 1]);
     }
+    if (strcmp(argv[i], "-k") == 0) {
+      printf("ENTERED -k %s\n", argv[i + 1]);
+      start_k = atoi(argv[i + 1]);
+      max_k = atoi(argv[i + 1]);     
+    }
+    
     if (strcmp(argv[i], "-a") == 0) {
       printf("ENTERED -a %s\n", argv[i + 1]);
       attempts = atoi(argv[i + 1]);
@@ -210,48 +216,69 @@ int main(int argc, char** argv) {
 
   // number of clusters
   for (int k = start_k; k <= max_k; k++) {
-
     // number of attempts for this value of k
     for (int attempt = 0; attempt < attempts; attempt++) {
       // initialise variables
       int finished = 0;
       // generate clusters
-      printf("\nATTEMPT %d GENERATING %d CLUSTERS\n", attempt+1, k);
-      double** cluster_array;
+      printf("\nATTEMPT %d GENERATING %d CLUSTERS\n", attempt + 1, k);
+      double** centroid_array;
       int gen_cluster_return =
-          GenerateClusters(k, n_dimensions, &mins, &maxs, &cluster_array);
+          GenerateClusters(k, n_dimensions, &mins, &maxs, &centroid_array);
 
       // while not finished
       while (finished == 0) {
-        // assign points to clusters
-        // move clusters to middle of new points
-
-        // copy cluster_array to old_cluster_array
-        double** old_cluster_array = malloc(sizeof(double*) * k);
-        if (old_cluster_array == NULL) {
+        // copy centroid_array to old_centroid_array
+        double** old_centroid_array = malloc(sizeof(double*) * k);
+        if (old_centroid_array == NULL) {
           printf("Memory allocation error");
           return 1;
         }
         for (int r = 0; r < k; r++) {
-          old_cluster_array[r] = malloc(sizeof(double) * n_dimensions);
-          if (old_cluster_array[r] == NULL) {
+          old_centroid_array[r] = malloc(sizeof(double) * n_dimensions);
+          if (old_centroid_array[r] == NULL) {
             printf("Memory allocation error");
             return 1;
           }
         }
         for (int r = 0; r < k; r++) {
           for (int c = 0; c < n_dimensions; c++) {
-            old_cluster_array[r][c] = cluster_array[r][c];
+            old_centroid_array[r][c] = centroid_array[r][c];
           }
         }
-        // print old_cluster_array
+        // print old_centroid_array
         printf("Old Cluster Array\n");
         for (int r = 0; r < k; r++) {
           for (int c = 0; c < n_dimensions; c++) {
-            printf("%lf", old_cluster_array[r][c]);
+            printf("%lf ", old_centroid_array[r][c]);
           }
           printf("\n");
         }
+
+        // assign points to clusters
+
+        //size k rows and up to (n_values+1) columns
+        // each row is a centroid and list all all values in dataset
+        // each value is represented with a number from 0 -> n_values representing its index in data_array
+        double** cluster_data_array = malloc(sizeof(double*) * k);
+        if (cluster_data_array == NULL){
+          printf("Memory allocation error\n");
+          return 1;
+        }
+        for (int r = 0; r < k; r++){
+          cluster_data_array[r] = malloc(sizeof(double) * n_values);
+          if (cluster_data_array[r] == NULL){
+            printf("Memory allocation error\n");
+            return 1;
+          }
+        }
+
+
+
+
+
+
+        // move clusters to middle of new points
 
         finished = 1;
       }

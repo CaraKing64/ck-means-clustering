@@ -126,7 +126,7 @@ int GenerateClusters(int n_clusters, int n_coordinates, double** min_vals,
 
 int KIterate(int n_values, int n_dimensions, int n_clusters,
              double*** p_data_array, double*** p_centroid_array,
-             int** p_centroid_length_array) {
+             int** p_centroid_length_array, int*** p_cluster_data_array) {
   // initialise
 
   printf("\nStarting k-means clustering\n");
@@ -136,6 +136,7 @@ int KIterate(int n_values, int n_dimensions, int n_clusters,
   double** data_array = *p_data_array;
   double** centroid_array = *p_centroid_array;
   int* centroid_length_array = *p_centroid_length_array;
+  int** cluster_data_array = *p_cluster_data_array;
 
   for (int i = 0; i < n_values; i++) {
     int assigned_cluster = 0;
@@ -322,9 +323,21 @@ int main(int argc, char** argv) {
         for (int i = 0; i < k; i++){
           centroid_length_array[i] = 0;
         }
+        int** data_in_clusters = malloc(sizeof(int*) * n_values);
+        if (data_in_clusters = NULL){
+          printf("Memory allocation error\n");
+          return 1;
+        }
+        for (int i = 0; i < k; i++){
+          data_in_clusters[i] = malloc(sizeof(int) * n_values);
+          if (data_in_clusters[i] == NULL){
+            printf("Memory allocation error\n");
+            return 1;
+          }
+        }
 
         int k_result =
-            KIterate(n_values, n_dimensions, k, &data_array, &centroid_array, &centroid_length_array);
+            KIterate(n_values, n_dimensions, k, &data_array, &centroid_array, &centroid_length_array, &data_in_clusters);
         finished = 1;
       }
     }

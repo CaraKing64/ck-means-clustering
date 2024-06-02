@@ -124,29 +124,47 @@ int GenerateClusters(int n_clusters, int n_coordinates, double** min_vals,
   return 0;
 }
 
-int AssignPointsToCentroids(int n_clusters, int n_values, int n_vars,
-                            double*** data_array, double*** cluster_array,
-                            double*** data_cluster_array,
-                            double** centroid_length_array) {
-  printf("before printing centroids\n");
-  for (int c = 0; c < n_clusters; c++) {
-    for (int r = 0; r < n_vars; r++) {
-      printf("%lf ", *cluster_array[r][c]);
-    }
-    printf("\n");
-  }
+int KIterate(int n_values, int n_dimensions, int n_clusters,
+             double*** p_data_array, double*** p_centroid_array,
+             int** p_centroid_length_array) {
+  // initialise
+
+  printf("\nStarting k-means clustering\n");
+  printf("%d values  %d dimensions  %d clusters\n", n_values, n_dimensions,
+         n_clusters);
+
+  double** data_array = *p_data_array;
+  double** centroid_array = *p_centroid_array;
+  int* centroid_length_array = *p_centroid_length_array;
 
   for (int i = 0; i < n_values; i++) {
-    printf("Value i=%d ", i);
-
+    int assigned_cluster = 0;
+    double min_distance = Distance(data_array[i], centroid_array[0], n_values);
     for (int c = 0; c < n_clusters; c++) {
-      printf("Dist c%d = %lf  ", c + 1,
-             Distance(*data_array[i], *cluster_array[c], n_vars));
+      double dist = Distance(data_array[i], centroid_array[c], n_values);
+      printf("min: %lf  cluster %lf\n", min_distance, dist);
+      if (dist < min_distance) {
+        min_distance = dist;
+        assigned_cluster = c;
+      }
     }
-
-    printf("\n");
+    printf("Value %d is closest to cluster %d\n\n", i, assigned_cluster + 1);
+    centroid_length_array[assigned_cluster]++; 
   }
-  return 0;
+
+  for (int i = 0; i < n_clusters; i++){
+    printf("Cluster %d has %d values\n", i, centroid_length_array[i]);
+  }
+
+
+
+
+
+
+  
+  // assign points to clusters
+
+  // move clusters to middle of new points
 }
 
 int main(int argc, char** argv) {
@@ -214,7 +232,6 @@ int main(int argc, char** argv) {
     attempts = 10;
   }
 
-
   printf("n_values = %d  n_dimensions = %d\n", n_values, n_dimensions);
 
   // print data
@@ -246,7 +263,7 @@ int main(int argc, char** argv) {
   }
 
   // print mins and maxs
-  printf("\nMin values: ");
+  printf("Min values: ");
   for (int i = 0; i < n_dimensions; i++) {
     printf("%.1lf ", mins[i]);
   }
@@ -258,7 +275,7 @@ int main(int argc, char** argv) {
 
   // K-MEANS CLUSTERING LOOP
 
-  printf("Starting k-means clustering from k=%d to k=%d", start_k, max_k);
+  printf("\nStarting k-means clustering from k=%d to k=%d", start_k, max_k);
 
   // number of clusters
   for (int k = start_k; k <= max_k; k++) {
@@ -301,41 +318,13 @@ int main(int argc, char** argv) {
           printf("\n");
         }
 
-        // assign points to clusters
-
-        // size k rows and up to (n_values+1) columns
-        //  each row is a centroid and list all all values in dataset
-        //  each value is represented with a number from 0 -> n_values
-        //  representing its index in data_array
-        double** cluster_data_array = malloc(sizeof(double*) * k);
-        if (cluster_data_array == NULL) {
-          printf("Memory allocation error\n");
-          return 1;
-        }
-        for (int r = 0; r < k; r++) {
-          cluster_data_array[r] = malloc(sizeof(double) * n_values);
-          if (cluster_data_array[r] == NULL) {
-            printf("Memory allocation error\n");
-            return 1;
-          }
-        }
-        double* centroid_length_array = malloc(sizeof(double) * k);
-        if (centroid_length_array == NULL) {
-          printf("Memory allocation error\n");
-          return 1;
+        int* centroid_length_array = malloc(sizeof(int) * k);
+        for (int i = 0; i < k; i++){
+          centroid_length_array[i] = 0;
         }
 
-        printf("\nASSINGING POINTS TO %d CENTROIDS\n", k);
-        int centroid_assign = AssignPointsToCentroids(
-            k, n_values, n_dimensions, &data_array, &centroid_array,
-            &cluster_data_array, &centroid_length_array);
-        if (centroid_assign != 0) {
-          printf("Assigning points to clusters failed\n");
-          return 1;
-        }
-
-        // move clusters to middle of new points
-
+        int k_result =
+            KIterate(n_values, n_dimensions, k, &data_array, &centroid_array, &centroid_length_array);
         finished = 1;
       }
     }

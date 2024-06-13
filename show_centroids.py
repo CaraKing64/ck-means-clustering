@@ -14,11 +14,11 @@ values = []
 centroids = []
 for v in output_lines:
   new_v = v.split(',')
-  values.append((int(new_v[0]), int(new_v[1].replace('\n', ''))))
+  values.append((float(new_v[0]), float(new_v[1].replace('\n', ''))))
 
 for c in centroid_lines:
   new_c = c.split(',')
-  centroids.append((int(new_c[0]), int(new_c[1].replace('\n', ''))))
+  centroids.append((float(new_c[0]), float(new_c[1].replace('\n', ''))))
 
 
 running = True
@@ -31,7 +31,7 @@ while running:
   for p in values:
     pygame.draw.circle(screen, (255, 0 , 0), p, 5)
   for p in centroids:
-    pygame.draw.circle(screen, (0, 255 , 0), p, 5)
+    pygame.draw.circle(screen, (0, 255 , 0), p, 10)
   
   
   pygame.display.flip()

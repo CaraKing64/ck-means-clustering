@@ -4,19 +4,17 @@
 #include <string.h>
 #include <time.h>
 
-double rand_double(double lower, double upper) {
-  double s = ((double)rand() / (double)RAND_MAX);
-  double num = lower + s*(upper-lower);
-  return num;
+void inc(int *p_x){
+  (*p_x)++;
 }
 
 int main(void) {
   srand(time(NULL));
 
-  for (int i = 0; i < 10; i++) {
-    double n = rand_double(5, 10);
-    printf("%lf\n", n);
-  }
+  int num = 5;
+  printf("1. %d\n", num);
+  inc(&num);
+  printf("2. %d\n", num);
 
   return 0;
 }
